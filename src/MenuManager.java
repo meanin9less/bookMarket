@@ -28,6 +28,7 @@ public class MenuManager {
         Scanner s = new Scanner(System.in);
         int menuId = s.nextInt();
         System.out.println(menuId + "번을 선택했습니다.");
+        s.nextLine();
         return menuId;
     }
 
