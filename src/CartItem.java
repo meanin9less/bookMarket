@@ -1,26 +1,26 @@
 public class CartItem {
-    private Book book;
+    private Item item;
     private int count;
     private int totalPrice;
 //생성자
-    public CartItem(Book book, int count){
-        this.book = book;
+    public CartItem(Item item, int count){
+        this.item = item;
         this.count = count;
         this.updateTotalPrice();
     }
-    public CartItem(Book book){
-        this.book = book;
+    public CartItem(Item item){
+        this.item = item;
         this.count = 1;
         this.updateTotalPrice();
     }
 
     public void updateTotalPrice() {
-        this.totalPrice = this.count * this.book.getPrice();
+        this.totalPrice = this.count * this.item.getPrice();
     }
 
 // 읽기 접근자
-    public Book getBook() {
-        return this.book;
+    public Item getItem() {
+        return this.item;
     }
     public int getCount() {
         return count;

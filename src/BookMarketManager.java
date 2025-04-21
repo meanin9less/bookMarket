@@ -2,8 +2,9 @@ import java.util.Scanner;
 
 public class BookMarketManager {
 
-    Book[] mBook = new Book[3]; //문자열 객체의 참조값이 들어감 int 였으면 int 정수 자체가 들어감
-    Cart mCart = new Cart();
+    private Book[] mBook = new Book[3]; //문자열 객체의 참조값이 들어감 int 였으면 int 정수 자체가 들어감
+    private Cart mCart = new Cart();
+    private Person currentUser = null;
 
     public BookMarketManager() {
         mBook[0] = new Book("ISBN1234", "쉽게 배우는 JSP 웹 프로그래밍", 27000, "송미영", "단계별로 쇼핑몰을 구현하며 배우는 JSP 웹 프로그래밍", "IT전문서", "2018/10/08");
@@ -42,7 +43,7 @@ public class BookMarketManager {
 
             int index = -1;
             for (int i = 0; i < this.mBook.length; i++) {
-                if (this.mBook[i].getId().trim().equals(bookId.trim())) {
+                if (this.mBook[i].getItemId().trim().equals(bookId.trim())) {
                     index = i;
                     break;
                 }
@@ -51,12 +52,12 @@ public class BookMarketManager {
                 System.out.println("장바구니에 추가하시겠습니까? Y | N ");
                 String decision = s.nextLine();
                 if (decision.equalsIgnoreCase("Y")) {
-                    if (this.mCart.isCartInBook(bookId)) {
-                        this.mCart.increaseBookCount(bookId);
+                    if (this.mCart.isCartInItem(bookId)) {
+                        this.mCart.increaseItemCount(bookId);
                     } else {
-                        this.mCart.appendBook(this.mBook[index]);
+                        this.mCart.appendItem(this.mBook[index]);
                     }
-                    System.out.println(this.mBook[index].getTitle() + "가 장바구니에 1권 추가되었습니다.");
+                    System.out.println(this.mBook[index].getName() + "가 장바구니에 1권 추가되었습니다.");
                     break;
                 }
                 exit = true;
@@ -76,15 +77,18 @@ public class BookMarketManager {
             Scanner input = new Scanner(System.in);
             String bookId = input.nextLine();
 
-            if (!mCart.isCartInBook(bookId)) {
+            if (!mCart.isCartInItem(bookId)) {
                 System.out.println("없는 도서입니다.");
                 continue;
             }
             System.out.println(bookId + "의 수량을 줄이시겠습니까? Y | N");
             String decision = input.nextLine();
             if (decision.toUpperCase().trim().equals("Y")) {
-                String title = this.mCart.decreaseBookCount(bookId).getTitle();
-                System.out.println("장바구니에서 " + title + "의 수량을 줄였습니다.");
+                Item item = this.mCart.decreaseItemCount(bookId);
+                if(item instanceof Book){ // instanceof 원래 객체가 뭐였냐 물어보는거
+                    Book book = (Book)item;
+                    System.out.println("장바구니에서 " + book.getName() + "의 수량을 줄였습니다.");
+                }
                 break;
             }
             break;
@@ -99,14 +103,14 @@ public class BookMarketManager {
         System.out.print("삭제할 도서ID를 입력하세요.");
         Scanner s = new Scanner(System.in);
         String bookId = s.nextLine();
-        if(!this.mCart.isCartInBook(bookId)){
+        if(!this.mCart.isCartInItem(bookId)){
             System.out.println("도서를 찾을 수 없습니다.");
             return;
         }
         System.out.println("삭제하시겠습니까? Y | N");
         String decision = s.nextLine();
         if(decision.toUpperCase().trim().equals("Y")){
-            System.out.println(this.mCart.removeCartItem(bookId).getTitle() + "이 장바구니에서 삭제되었습니다.");
+            System.out.println(this.mCart.removeCartItem(bookId).getName() + "이 장바구니에서 삭제되었습니다.");
         } else {
             System.out.println("취소하였습니다..");
         }
@@ -120,38 +124,63 @@ public class BookMarketManager {
         System.out.println("합계 : " + this.mCart.cartBill()+"원");
     }
 
+    public void menuAdminLogin(Person user){
+        Scanner s = new Scanner(System.in);
+        System.out.println("관리자 로그인");
+        System.out.println("관리자 정보를 입력하세요.");
+        Admin admin = new Admin(user.getName(), user.getContact());
+        System.out.print("아이디 : ");
+        String inputId = s.nextLine();
+        if(!admin.isCollectId(inputId)){
+            System.out.println("아이디가 잘못되었습니다.");
+            return;
+        }
+        System.out.print("비밀번호 : ");
+        String inputPw = s.nextLine();
+        if(!admin.isCollectPw(inputPw)){
+            System.out.println("비밀번호가 잘못되었습니다.");
+            return;
+        }
+        this.currentUser = admin;
+        System.out.println("이름 : " + admin.getName() + "\t" + "연락처 : " + admin.getContact());
+        System.out.println("아이디 : " + admin.getAdminId() + "\t" + "비밀번호 : " + admin.getAdminPw());
+    }
+
 
     public void run() {
-        Person user = login();
+        this.login();
         while (true) {
             boolean endFlag = false;
             MenuManager.menuIntroduce();
             int menuId = MenuManager.selectMenu();
             switch (menuId) {
                 case MenuManager.MENUGUESTINFO:
-                    menuGuestInfo(user);
+                    this.menuGuestInfo(this.currentUser);
                     break;
                 case MenuManager.MENUCARTITEMLIST:
-                    menuCartItemList();
+                    this.menuCartItemList();
                     break;
                 case MenuManager.MENUCARTCLEAR:
-                    menuCartClear();
+                    this.menuCartClear();
                     break;
                 case MenuManager.MENUCARTADDITEM:
-                    menuCartAddItem();
+                    this.menuCartAddItem();
                     break;
                 case MenuManager.MENUCARTREMOVEITEMCOUNT:
-                    menuCartRemoveItemCount();
+                    this.menuCartRemoveItemCount();
                     break;
                 case MenuManager.MENUCARTREMOVEITEM:
-                    menuCartRemoveItem();
+                    this.menuCartRemoveItem();
                     break;
                 case MenuManager.MENUCARTBILL:
-                    menuCartBill();
+                    this.menuCartBill();
                     break;
                 case MenuManager.EXIT:
                     endFlag = true;
                     System.out.println("종료되었습니다.");
+                    break;
+                case MenuManager.ADMINLOGIN:
+                    this.menuAdminLogin(this.currentUser);
                     break;
                 default:
                     System.out.println("잘못입력하였습니다.");
@@ -163,20 +192,19 @@ public class BookMarketManager {
         }
     }
 
-    public Person login() {
+    public void login() {
         Scanner s1 = new Scanner(System.in);
         System.out.print("당신의 이름을 입력하세요. : ");
         String name = s1.nextLine();
         System.out.print("연락처를 입력하세요. : ");
         String contact = s1.nextLine();
-
-        return new Person(name, contact);
+        this.currentUser = new User(name, contact);
     }
 
     public void printBookList(){
         for (int i = 0; i < this.mBook.length; i++) {
-            System.out.print(this.mBook[i].getId() + " | ");
-            System.out.print(this.mBook[i].getTitle() + " | ");
+            System.out.print(this.mBook[i].getItemId() + " | ");
+            System.out.print(this.mBook[i].getName() + " | ");
             System.out.print(this.mBook[i].getPrice() + " | ");
             System.out.print(this.mBook[i].getAuthor() + " | ");
             System.out.print(this.mBook[i].getDescription() + " | ");
