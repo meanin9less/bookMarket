@@ -1,15 +1,16 @@
+
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class BookMarketManager {
-
-    private Book[] mBook = new Book[3]; //문자열 객체의 참조값이 들어감 int 였으면 int 정수 자체가 들어감
+    private ArrayList<Book> mBook = new ArrayList<>(); //문자열 객체의 참조값이 들어감 int 였으면 int 정수 자체가 들어감
     private Cart mCart = new Cart();
     private Person currentUser = null;
 
     public BookMarketManager() {
-        mBook[0] = new Book("ISBN1234", "쉽게 배우는 JSP 웹 프로그래밍", 27000, "송미영", "단계별로 쇼핑몰을 구현하며 배우는 JSP 웹 프로그래밍", "IT전문서", "2018/10/08");
-        mBook[1] = new Book("ISBN1235", "안드로이드 프로그래밍", 33000, "유재남", "실습 단계별 명쾌한 멘토링!", "IT전문서", "2022/01/22");
-        mBook[2] = new Book("ISBN1236", "스크래치", 22000, "고광일", "컴퓨팅 사고력을 키우는 블록 코딩", "컴퓨터입문", "2019/06/10");
+        this.mBook.add(new Book("ISBN1234", "쉽게 배우는 JSP 웹 프로그래밍", 27000, "송미영", "단계별로 쇼핑몰을 구현하며 배우는 JSP 웹 프로그래밍", "IT전문서", "2018/10/08"));
+        this.mBook.add(new Book("ISBN1235", "안드로이드 프로그래밍", 33000, "유재남", "실습 단계별 명쾌한 멘토링!", "IT전문서", "2022/01/22"));
+        this.mBook.add(new Book("ISBN1236", "스크래치", 22000, "고광일", "컴퓨팅 사고력을 키우는 블록 코딩", "컴퓨터입문", "2019/06/10"));
     }
 
     public void menuGuestInfo(Person user) {
@@ -42,8 +43,8 @@ public class BookMarketManager {
             String bookId = s.nextLine();
 
             int index = -1;
-            for (int i = 0; i < this.mBook.length; i++) {
-                if (this.mBook[i].getItemId().trim().equals(bookId.trim())) {
+            for (int i = 0; i < this.mBook.size(); i++) {
+                if (this.mBook.get(i).getItemId().trim().equals(bookId.trim())) {
                     index = i;
                     break;
                 }
@@ -55,9 +56,9 @@ public class BookMarketManager {
                     if (this.mCart.isCartInItem(bookId)) {
                         this.mCart.increaseItemCount(bookId);
                     } else {
-                        this.mCart.appendItem(this.mBook[index]);
+                        this.mCart.appendItem(this.mBook.get(index));
                     }
-                    System.out.println(this.mBook[index].getName() + "가 장바구니에 1권 추가되었습니다.");
+                    System.out.println(this.mBook.get(index).getName() + "가 장바구니에 1권 추가되었습니다.");
                     break;
                 }
                 exit = true;
@@ -110,7 +111,7 @@ public class BookMarketManager {
         System.out.println("삭제하시겠습니까? Y | N");
         String decision = s.nextLine();
         if(decision.toUpperCase().trim().equals("Y")){
-            System.out.println(this.mCart.removeCartItem(bookId).getName() + "이 장바구니에서 삭제되었습니다.");
+            System.out.println(this.mCart.deleteCartItem(bookId).getName() + "이 장바구니에서 삭제되었습니다.");
         } else {
             System.out.println("취소하였습니다..");
         }
@@ -202,14 +203,14 @@ public class BookMarketManager {
     }
 
     public void printBookList(){
-        for (int i = 0; i < this.mBook.length; i++) {
-            System.out.print(this.mBook[i].getItemId() + " | ");
-            System.out.print(this.mBook[i].getName() + " | ");
-            System.out.print(this.mBook[i].getPrice() + " | ");
-            System.out.print(this.mBook[i].getAuthor() + " | ");
-            System.out.print(this.mBook[i].getDescription() + " | ");
-            System.out.print(this.mBook[i].getCategory() + " | ");
-            System.out.print(this.mBook[i].getPublicationDate() + " | ");
+        for (int i = 0; i < this.mBook.size(); i++) {
+            System.out.print(this.mBook.get(i).getItemId() + " | ");
+            System.out.print(this.mBook.get(i).getName() + " | ");
+            System.out.print(this.mBook.get(i).getPrice() + " | ");
+            System.out.print(this.mBook.get(i).getAuthor() + " | ");
+            System.out.print(this.mBook.get(i).getDescription() + " | ");
+            System.out.print(this.mBook.get(i).getCategory() + " | ");
+            System.out.print(this.mBook.get(i).getPublicationDate() + " | ");
             System.out.println();
         }
     }
